@@ -11,7 +11,7 @@ redirect_uri = 'http://google.com/'
 
 # Username & Scope, and Prompt for user permission
 username = 'ali.yo12324'
-scope = 'user-library-read user-read-playback-state user-modify-playback-state'
+scope = 'user-read-private user-read-playback-state user-modify-playback-state'
 token = util.prompt_for_user_token(username, scope, client_id, client_secret, redirect_uri)
 
 
@@ -36,8 +36,7 @@ def current_active_device(spotifyObject):
 	for device in current_user_devices(spotifyObject)['devices']:
 		if device['is_active'] == True:
 			current_device = device
-		return current_device
-
+	return current_device
 
 # Play music
 def play(spotifyObject):
@@ -66,11 +65,18 @@ def transfer_playback(spotifyObject, device_id):
 
 # Search Song
 def search_song(spotifyObject, query):
-	
 	current_market = current_user_data(spotifyObject)['country']
 	current_device = current_active_device(spotifyObject)['id']
-
+	# try:
+	# 	searchResult = spotifyObject.search(query, type='track', limit=1, market=current_market)
+	# except spotipy.client.SpotifyException:
+	# 	print("Search must not be empty")
+	# 	return True
+	if query == "":
+		print("Search must not be empty")
+		return True
 	searchResult = spotifyObject.search(query, type='track', limit=1, market=current_market)
+
 	track_uri = searchResult['tracks']['items'][0]['uri']
 	print("URI:", track_uri)
 	play_track(spotifyObject, track_uri, current_device)

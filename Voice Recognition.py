@@ -4,7 +4,9 @@ import re  # For Splitting
 import keyboard  # Simulate Keyboard Input
 import win10toast # For notifications
 import subprocess # Also for system commands
+import json
 import spotipy # Spotify Python API
+import spotipy.util as util # Util for Spotify API
 
 import speech_recognition as sr  # Main SR API
 
@@ -14,7 +16,18 @@ from googleapiclient.discovery import build # For Youtube API
 
 r = sr.Recognizer()
 notification = win10toast.ToastNotifier()
+# Youtube Settings
 youtube = build('youtube', 'v3', developerKey="AIzaSyDu5qoUXtLVam1LytJi26Z_Is48jq0zVyM")
+# Spotify Client Settings
+client_id = '8654953b081e4a93be3dc54a0bb94b76'
+client_secret = 'ddf018ff1b3b4681878b036d6518ac29'
+redirect_uri = 'http://google.com/'
+# Username & Scope, and Prompt for user permission
+username = 'ali.yo12324'
+scope = 'user-read-private user-read-playback-state user-modify-playback-state'
+token = util.prompt_for_user_token(username, scope, client_id, client_secret, redirect_uri)
+# Create Spotify Object
+spotifyObject = spotipy.Spotify(auth=token)
 
 # Things to add
 # spotify play
@@ -40,6 +53,7 @@ mpowerpoint_list = ["powerpoint"]
 spotify_list = ["spotify", "music"]
 browser_list = ["browser", "google", "chrome"]
 search_internet_list = ["google", "youtube"]
+phone_list = ["phone", "smartphone", "iphone", "samsung", "android"]
 
 
 def get_audio():
@@ -102,6 +116,14 @@ def parse_text(input):
     # Play music on Youtube
     if any(x in input for x in MainKeys[6]) and ("youtube" in input):
         play_youtube(input)
+        return True
+    # Play music on Spotify
+    if any(x in input for x in MainKeys[6]) and ("spotify" in input):
+        play_spotify(input, "Computer")
+        return True
+    # Play music on Phone
+    if any(x in input for x in MainKeys[6]) and any(x in input for x in phone_list):
+        play_spotify(input, "Smartphone")
         return True
     # Pause/Play Media
     if any(x in input for x in MainKeys[6]):
@@ -210,6 +232,10 @@ def get_SearchArray(input, setting, setting2):
         settingtype = "youtube"
     elif setting == 3:
         settingtype = "spotify"
+    elif setting == 4:
+        for phone in phone_list:
+            if phone in input:
+                settingtype = phone
     # Determines whether search or directly click on line
     if setting2 == 1:
         settingtype2 = "search"
@@ -240,6 +266,50 @@ def play_youtube(text):
     id = res['items'][0]['id']['videoId']
     command = "start https://youtube.com/watch?v=" + id
     os.system(command)
+
+# Get Spotify Device ID
+def get_device_id(device_type):
+    device_id = ""
+    # Get list of devices
+    devices = spotifyObject._get('me/player/devices')['devices']
+    if len(devices) == 0:
+        print("There are no devices available currently")
+        return True
+    if len(devices) == 1:
+        return devices[0]['id']
+    for device in devices:
+        if device['type'] == device_type:
+            return device['id']
+    print("The type of device you're looking for aren't available now")
+
+# Play song on spotify
+def play_spotify(text, device_type):
+    # Getting search_query
+    search_array = []
+    if device_type == "Computer":
+        search_array = get_SearchArray(text, 3, 2)
+    if device_type == "Smartphone":
+        search_array = get_SearchArray(text, 4, 2)
+    separator = " "
+    search_query = separator.join(search_array)
+    # Getting Track URI
+    if search_query == "":
+        print("Nothing to search")
+        return True
+    current_market = spotifyObject.current_user()['country']
+    searchResult = spotifyObject.search(search_query, type='track', limit=1, market=current_market)
+    print(json.dumps(searchResult, sort_keys=True, indent=4))
+    track_uri = searchResult['tracks']['items'][0]['uri']
+    print(track_uri)
+    # Getting Device ID
+    device_id = get_device_id(device_type)
+    print(device_id)
+    # Playing track
+    data = {
+        'uris': [track_uri]
+    }
+    url = 'me/player/play?device_id=' + device_id
+    spotifyObject._put(url, payload=data)
 
 
 # Open Stuff Functions
