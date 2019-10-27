@@ -76,8 +76,11 @@ def search_song(spotifyObject, query):
 		print("Search must not be empty")
 		return True
 	searchResult = spotifyObject.search(query, type='track', limit=1, market=current_market)
-
-	track_uri = searchResult['tracks']['items'][0]['uri']
+	try:
+		track_uri = searchResult['tracks']['items'][0]['uri']
+	except IndexError:
+		print("No result for the following query, please try again.")
+		return True
 	print("URI:", track_uri)
 	play_track(spotifyObject, track_uri, current_device)
 

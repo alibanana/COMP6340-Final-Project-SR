@@ -1,24 +1,32 @@
-import logging
-import threading
-import time
+# import logging
+# import threading
+# import time
+#
+# def thread_function(name):
+#     for i in range(5):
+#         logging.info("Thread %s: starting", name)
+#         time.sleep(2)
+#
+#     logging.info("Thread %s: finishing", name)
+#
+# if __name__ == "__main__":
+#     format = "%(asctime)s: %(message)s"
+#     logging.basicConfig(format=format, level=logging.INFO,
+#                         datefmt="%H:%M:%S")
+#
+#     logging.info("Main    : before creating thread")
+#     x = threading.Thread(target=thread_function, args=(1,))
+#     logging.info("Main    : before running thread")
+#     x.start()
+#     while x.isAlive(): pass
+#     logging.info("Main    : wait for the thread to finish")
+#     # x.join()
+#     logging.info("Main    : all done")
 
-def thread_function(name):
-    for i in range(5):
-        logging.info("Thread %s: starting", name)
-        time.sleep(2)
+a = ''
 
-    logging.info("Thread %s: finishing", name)
+def test():
+    globals().update()
 
-if __name__ == "__main__":
-    format = "%(asctime)s: %(message)s"
-    logging.basicConfig(format=format, level=logging.INFO,
-                        datefmt="%H:%M:%S")
-
-    logging.info("Main    : before creating thread")
-    x = threading.Thread(target=thread_function, args=(1,))
-    logging.info("Main    : before running thread")
-    x.start()
-    while x.isAlive(): pass
-    logging.info("Main    : wait for the thread to finish")
-    # x.join()
-    logging.info("Main    : all done")
+test()
+print(a)

@@ -29,6 +29,8 @@ token = util.prompt_for_user_token(username, scope, client_id, client_secret, re
 # Create Spotify Object
 spotifyObject = spotipy.Spotify(auth=token)
 
+current_device = ''
+
 # Things to add
 # spotify play
 # spotify transfer playback
@@ -39,11 +41,12 @@ MainKeys = [["open"],
             ["search"],
             [["shut", "down"], ["turn", "off"], ["close", "down"], ["shutdown", "turnoff", "closedown"]],
             ["restart", "reinstate", "retard"],
-            ["pause", "play", "lay", "mouse"],
+            ["play", "lay"],
             ["set", "volume"],
             ["calculate", "evaluate"],
             ["next", "skip"],
-            ["previous"]]
+            ["previous"],
+            ["pause", "mouse"]]
 
 explorer_list = ["explore", "explorer", "folder"]
 taskview_list = ["task", "view", "taskview"]
@@ -72,7 +75,11 @@ def get_audio():
 
 
 def split_command(text):
-    input = text.split()
+    # If audio wasn't recognized
+    try:
+        input = text.split()
+    except AttributeError:
+        return True
     # If multiple command
     if ("then" in input) or ("and" in input):
         input2 = re.split('then|and', text)
@@ -84,6 +91,23 @@ def split_command(text):
 
 
 def parse_text(input):
+    # If search and play
+    if any(x in input for x in MainKeys[3]) or (any(x in input for x in MainKeys[6]) or any(x in input for x in MainKeys[11])):
+        for word in input:
+            if word in MainKeys[3]:
+                internet_stuff(input)
+                return True
+            if word in MainKeys[6] or word in MainKeys[11]:
+                if "youtube" in input:
+                    play_youtube(input)
+                    return True
+                if "spotify" in input:
+                    play_spotify(input, "Computer")
+                    return True
+                if any(x in input for x in phone_list):
+                    play_spotify(input, "Smartphone")
+                    return True
+                media_pause_play()
     # Open Stuff
     if any(x in input for x in MainKeys[0]):
         open_stuff(input)
@@ -91,10 +115,6 @@ def parse_text(input):
     # Close Stuff
     if any(x in input for x in MainKeys[1]):
         close_stuff(input)
-        return True
-    # Search on Internet
-    if any(x in input for x in MainKeys[3]):
-        internet_stuff(input)
         return True
     # Check Date
     if any(x in input for x in MainKeys[2]):
@@ -112,22 +132,6 @@ def parse_text(input):
         print("Are you sure?")
         if get_audio() == "yes":
             restart()
-        return True
-    # Play music on Youtube
-    if any(x in input for x in MainKeys[6]) and ("youtube" in input):
-        play_youtube(input)
-        return True
-    # Play music on Spotify
-    if any(x in input for x in MainKeys[6]) and ("spotify" in input):
-        play_spotify(input, "Computer")
-        return True
-    # Play music on Phone
-    if any(x in input for x in MainKeys[6]) and any(x in input for x in phone_list):
-        play_spotify(input, "Smartphone")
-        return True
-    # Pause/Play Media
-    if any(x in input for x in MainKeys[6]):
-        media_pause_play()
         return True
     # Set Volume
     if all(x in input for x in MainKeys[7]):
@@ -298,18 +302,25 @@ def play_spotify(text, device_type):
         return True
     current_market = spotifyObject.current_user()['country']
     searchResult = spotifyObject.search(search_query, type='track', limit=1, market=current_market)
-    print(json.dumps(searchResult, sort_keys=True, indent=4))
-    track_uri = searchResult['tracks']['items'][0]['uri']
+    # print(json.dumps(searchResult, sort_keys=True, indent=4))
+    try:
+        track_uri = searchResult['tracks']['items'][0]['uri']
+    except IndexError:
+        print("No result for the following query, please try again.")
+        return True
     print(track_uri)
     # Getting Device ID
     device_id = get_device_id(device_type)
-    print(device_id)
+    # print(device_id)
     # Playing track
     data = {
         'uris': [track_uri]
     }
     url = 'me/player/play?device_id=' + device_id
     spotifyObject._put(url, payload=data)
+    # Stores current device id
+    global current_device
+    current_device = device_id
 
 
 # Open Stuff Functions
@@ -364,8 +375,7 @@ def close_excel():
 
 def close_powerpoint():
     os.system('taskkill /im powerpnt.exe /f')
-    notification.show_toast('Microsoft PowerPoint', 'Successfully closed', icon_path='icon/ms-powerpoint.ico',
-                            duration=3)
+    notification.show_toast('Microsoft PowerPoint', 'Successfully closed', icon_path='icon/ms-powerpoint.ico', duration=3)
 
 def close_spotify():
     os.system('taskkill /im spotify.exe /f')
@@ -380,7 +390,7 @@ def close_chrome():
 def check_date():
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%y %H:%M")
-    notification.show_toast(dt_string, "Date & Time", duration=3)
+    notification.show_toast(dt_string, "Date & Time", duration=10, threaded=True)
 
 def shutdown():
     # os.system('shutdown /s')
@@ -420,13 +430,16 @@ def evaluator(exp, eval_regex=r'^(\d+|\+|-|\*|\/)$'):
     notification.show_toast(result, "Result",icon_path='icon/Dtafalonso-Android-Lollipop-Calculator.ico', duration=3)
 
 
-# computer play imagine dragons radioactive on youtube
 # Main While Loop
 # while True:
 #     keyboard.wait(hotkey="k + l")
 #     split_command(get_audio())
+#     print(current_device)
 
 while True:
     text = input("Write Command: ")
     print("What you wrote: ", text)
     split_command(text)
+    print(current_device)
+
+# play_spotify('play search on spotify'.split(), 'Computer')
