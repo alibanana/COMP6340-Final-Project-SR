@@ -33,10 +33,6 @@ spotifyObject = spotipy.Spotify(auth=token)
 
 current_device = ''
 
-# Things to add
-# spotify play
-# spotify transfer playback
-
 MainKeys = [["open"],
             ["close", "exit", "quit"],
             ["date", "time"],
@@ -60,6 +56,7 @@ browser_list = ["browser", "google", "chrome"]
 search_internet_list = ["google", "youtube"]
 phone_list = ["phone", "smartphone", "iphone", "samsung", "android"]
 
+text = ''
 
 def get_audio():
     with sr.Microphone() as source:
@@ -68,8 +65,9 @@ def get_audio():
         audio = r.listen(source)
         # audio = r.record(source, duration=4)
         try:
+            global text
             text = r.recognize_google(audio, language="EN-US")
-            print("You Said: {}".format(text))
+            # print("You Said: {}".format(text))
         except:
             print("Sorry could not recognize your voice")
             return
@@ -298,6 +296,7 @@ def play_spotify(text, device_type):
         search_array = get_SearchArray(text, 4, 2)
     separator = " "
     search_query = separator.join(search_array)
+    print(search_query)
     # Getting Track URI
     if search_query == "":
         print("Nothing to search")
@@ -433,16 +432,22 @@ def evaluator(exp, eval_regex=r'^(\d+|\+|-|\*|\/)$'):
 
 
 # Main While Loop
-# while True:
-#     keyboard.wait(hotkey="k + l")
-#     split_command(get_audio())
-#     print(current_device)
 
-def run():
-    while True:
-        text = input("Write Command: ")
-        print("What you wrote: ", text)
-        split_command(text)
-        print(current_device)
+# def run():
+    # while True:
+    #     keyboard.wait(hotkey="k + l")
+    #     split_command(get_audio())
+    #     print(current_device)
+    # while True:
+    #     text = input("Write Command: ")
+    #     print("What you wrote: ", text)
+    #     split_command(text)
+    #     print(current_device)
+
+    # keyboard.wait(hotkey="k + l")
+    # split_command(get_audio())
+    # print("What you said: ", text)
+    # print(current_device)
+    # return text
 
 # play_spotify('play search on spotify'.split(), 'Computer')

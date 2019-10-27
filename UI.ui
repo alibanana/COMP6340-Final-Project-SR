@@ -6,27 +6,27 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>497</width>
+    <width>472</width>
     <height>179</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Voice Recognition</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>40</y>
+      <x>270</x>
+      <y>80</y>
       <width>191</width>
-      <height>61</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Consolas</family>
-      <pointsize>18</pointsize>
+      <pointsize>16</pointsize>
       <weight>75</weight>
       <bold>true</bold>
      </font>
@@ -35,13 +35,57 @@
      <string>Start / Stop</string>
     </property>
    </widget>
+   <widget class="QTextEdit" name="textEdit">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>251</width>
+      <height>111</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>0</y>
+      <width>91</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Type a command</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="runButton">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>20</y>
+      <width>191</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Consolas</family>
+      <pointsize>16</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Run Command</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>497</width>
+     <width>472</width>
      <height>21</height>
     </rect>
    </property>

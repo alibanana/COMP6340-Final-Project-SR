@@ -1,40 +1,92 @@
-# -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'F:\Programming\Python Projects\COMP6340 - Final Project (SR)\UI.ui'
-#
-# Created by: PyQt5 UI code generator 5.13.0
-#
-# WARNING! All changes made in this file will be lost!
-
 import PyQt5.QtCore as QtCore
 import PyQt5.QtGui as QtGui
 import PyQt5.QtWidgets as QtWidgets
 from PyQt5.QtCore import pyqtSignal, Qt, QThread
-
+import keyboard
+import speech_recognition as sr
 import VoiceRecognition as vr
+import threading
+import sys
+import win10toast
 
+notification = win10toast.ToastNotifier()
+
+# Speech to Text
+r = sr.Recognizer()
+def get_audio():
+    with sr.Microphone() as source:
+        r.adjust_for_ambient_noise(source, duration=2)
+        print("Speak Anything: ")
+        notification.show_toast("SR", "Start talking:", threaded=True, duration=3)
+        audio = r.listen(source)
+        # audio = r.record(source, duration=4)
+        try:
+            text = r.recognize_google(audio, language="EN-US")
+            # print("You Said: {}".format(text))
+        except:
+            print("Sorry could not recognize your voice")
+            return
+    return text.lower()
+
+# PyQT5 UI
+text = ''
 class My_Thread(QThread):
+    def __init__(self):
+        super(My_Thread, self).__init__()
     def run(self):
-        vr.run()
+        while True:
+            keyboard.wait(hotkey="k + l")
+            saidtext = get_audio()
+            if saidtext == None:
+                self.text = "Sorry could not recognize your voice"
+                notification.show_toast("Error","Sorry could not recognize your voice", threaded=True, duration=3 )
+            else:
+                print("What you said: ", saidtext)
+                vr.split_command(saidtext)
+
+class command_thread(QThread):
+    text = ''
+    def __init__(self, text):
+        super(command_thread, self).__init__()
+        self.text = text
+    def run(self):
+        vr.split_command(self.text)
 
 class Ui_MainWindow(object):
+    # global text
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedSize(497, 179)
+        MainWindow.setFixedSize(472, 179)
+        # MainWindow.setWindowIcon()
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(280, 40, 191, 61))
+        self.pushButton.setGeometry(QtCore.QRect(270, 80, 191, 51))
         font = QtGui.QFont()
         font.setFamily("Consolas")
-        font.setPointSize(18)
+        font.setPointSize(16)
         font.setBold(True)
         font.setWeight(75)
         self.pushButton.setFont(font)
         self.pushButton.setObjectName("pushButton")
+        self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
+        self.textEdit.setGeometry(QtCore.QRect(10, 20, 251, 111))
+        self.textEdit.setObjectName("textEdit")
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setGeometry(QtCore.QRect(10, 0, 91, 16))
+        self.label.setObjectName("label")
+        self.runButton = QtWidgets.QPushButton(self.centralwidget)
+        self.runButton.setGeometry(QtCore.QRect(270, 20, 191, 51))
+        font = QtGui.QFont()
+        font.setFamily("Consolas")
+        font.setPointSize(16)
+        font.setBold(True)
+        font.setWeight(75)
+        self.runButton.setFont(font)
+        self.runButton.setObjectName("runButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 497, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 472, 21))
         self.menubar.setObjectName("menubar")
         self.menuHelp = QtWidgets.QMenu(self.menubar)
         self.menuHelp.setObjectName("menuHelp")
@@ -53,14 +105,16 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-
         self.state = 0
         self.pushButton.clicked.connect(self.check_state)
+        self.runButton.clicked.connect(self.command)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton.setText(_translate("MainWindow", "Start / Stop"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Voice Recognition"))
+        self.pushButton.setText(_translate("MainWindow", "Start"))
+        self.label.setText(_translate("MainWindow", "Type a command"))
+        self.runButton.setText(_translate("MainWindow", "Run Command"))
         self.menuHelp.setTitle(_translate("MainWindow", "Menu"))
         self.actionHelp.setText(_translate("MainWindow", "Help"))
         self.actionAbout_Us.setText(_translate("MainWindow", "About Us"))
@@ -75,17 +129,26 @@ class Ui_MainWindow(object):
     def buttonclick(self):
         self.thread = My_Thread()
         self.thread.start()
+        self.pushButton.setText("Stop")
         self.state = 1
+        self.textEdit.setText(text)
 
     def buttonstop(self):
         self.thread.quit()
+        self.pushButton.setText("Start")
         self.state = 0
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    def command(self):
+        self.text = self.textEdit.toPlainText()
+        self.thread2 = command_thread(self.text)
+        self.thread2.start()
+        self.textEdit.setText("")
+
+app = QtWidgets.QApplication(sys.argv)
+MainWindow = QtWidgets.QMainWindow()
+ui = Ui_MainWindow()
+ui.setupUi(MainWindow)
+MainWindow.show()
+
+if __name__ == '__main__':
     sys.exit(app.exec_())
