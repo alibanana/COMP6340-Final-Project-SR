@@ -8,6 +8,8 @@ import json
 import spotipy # Spotify Python API
 import spotipy.util as util # Util for Spotify API
 
+import threading
+
 import speech_recognition as sr  # Main SR API
 
 from datetime import datetime # Check date
@@ -436,10 +438,11 @@ def evaluator(exp, eval_regex=r'^(\d+|\+|-|\*|\/)$'):
 #     split_command(get_audio())
 #     print(current_device)
 
-while True:
-    text = input("Write Command: ")
-    print("What you wrote: ", text)
-    split_command(text)
-    print(current_device)
+def run():
+    while True:
+        text = input("Write Command: ")
+        print("What you wrote: ", text)
+        split_command(text)
+        print(current_device)
 
 # play_spotify('play search on spotify'.split(), 'Computer')
