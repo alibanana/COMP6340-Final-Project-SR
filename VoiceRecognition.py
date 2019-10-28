@@ -5,6 +5,8 @@ import win10toast # For notifications
 import spotipy # Spotify Python API
 import spotipy.util as util # Util for Spotify API
 import speech_recognition as sr  # Main SR API
+import ctypes
+import threading
 
 from datetime import datetime # Check date
 from keyboardVirtual import Keyboard  # Faked Key Presses (Different from normal module)
@@ -20,7 +22,6 @@ client_id = '8654953b081e4a93be3dc54a0bb94b76'
 client_secret = 'ddf018ff1b3b4681878b036d6518ac29'
 redirect_uri = 'http://google.com/'
 # Username & Scope, and Prompt for user permission
-# username = '21tsyxc5cuuvesyb6gfxa3nia'
 username = ''
 scope = 'user-read-private user-read-playback-state user-modify-playback-state'
 token = util.prompt_for_user_token(username, scope, client_id, client_secret, redirect_uri)
@@ -51,24 +52,6 @@ spotify_list = ["spotify", "music"]
 browser_list = ["browser", "google", "chrome"]
 search_internet_list = ["google", "youtube"]
 phone_list = ["phone", "smartphone", "iphone", "samsung", "android"]
-
-text = ''
-
-def get_audio():
-    with sr.Microphone() as source:
-        r.adjust_for_ambient_noise(source, duration=2)
-        print("Speak Anything: ")
-        audio = r.listen(source)
-        # audio = r.record(source, duration=4)
-        try:
-            global text
-            text = r.recognize_google(audio, language="EN-US")
-            # print("You Said: {}".format(text))
-        except:
-            print("Sorry could not recognize your voice")
-            return
-    return text.lower()
-
 
 def split_command(text):
     # If audio wasn't recognized
@@ -119,16 +102,12 @@ def parse_text(input):
     # Shutdown Computer
     if all(x in input for x in MainKeys[4][0]) or all(x in input for x in MainKeys[4][1]) or \
     all(x in input for x in MainKeys[4][2]) or any(x in input for x in MainKeys[4][3]):
-        print("Are you sure?")
-        if get_audio() == "yes":
-            shutdown()
-        return
+        thread = threading.Thread(target=shutdown(), daemon=True)
+        thread.start()
     # Restart Computer
     if any(x in input for x in MainKeys[5]):
-        print("Are you sure?")
-        if get_audio() == "yes":
-            restart()
-        return
+        thread = threading.Thread(target=restart(), daemon=True)
+        thread.start()
     # Set Volume
     if all(x in input for x in MainKeys[7]):
         for i in input:
@@ -392,12 +371,20 @@ def check_date():
     notification.show_toast(dt_string, "Date & Time", duration=5, threaded=True)
 
 def shutdown():
-    # os.system('shutdown /s')
-    print("computer shutdown")
+    ans = ctypes.windll.user32.MessageBoxW(0, "Are you sure?", "Computer Shutdown", 1)
+    if ans:
+        print("computer shutdown")
+        # os.system('shutdown /s')
+        return
+    print("Cancelled")
 
 def restart():
-    # os.system('shutdown /r')
-    print("computer restart")
+    ans = ctypes.windll.user32.MessageBoxW(0, "Are you sure?", "Computer Restart", 1)
+    if ans:
+        print("computer restart")
+        # os.system('shutdown /r')
+        return
+    print("Cancelled")
 
 def media_pause_play():
     Keyboard.key(Keyboard.VK_MEDIA_PLAY_PAUSE)

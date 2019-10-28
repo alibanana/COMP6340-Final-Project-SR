@@ -1,3 +1,4 @@
+import os
 import sys
 import keyboard
 import speech_recognition as sr
@@ -104,6 +105,8 @@ class Ui_MainWindow(object):
         self.state = 0
         self.pushButton.clicked.connect(self.check_state)
         self.runButton.clicked.connect(self.command)
+        self.actionHelp.triggered.connect(self.help_clicked)
+        self.actionAbout_Us.triggered.connect(self.about_us_clicked)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -138,6 +141,12 @@ class Ui_MainWindow(object):
         self.thread2 = command_thread(self.text)
         self.thread2.start()
         self.textEdit.setText("")
+
+    def about_us_clicked(self):
+        os.system('start https://voicerecognition.godaddysites.com/tentang-kami')
+
+    def help_clicked(self):
+        os.system('start https://voicerecognition.godaddysites.com/help')
 
 app = QtWidgets.QApplication(sys.argv)
 MainWindow = QtWidgets.QMainWindow()
