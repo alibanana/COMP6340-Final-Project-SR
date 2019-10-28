@@ -51,6 +51,8 @@ class command_thread(QThread):
         self.text = text
     def run(self):
         vr.split_command(self.text)
+        self.exit()
+
 
 class Ui_MainWindow(object):
     # global text
@@ -134,7 +136,7 @@ class Ui_MainWindow(object):
         self.textEdit.setText(text)
 
     def buttonstop(self):
-        self.thread.quit()
+        self.thread.terminate()
         self.pushButton.setText("Start")
         self.state = 0
 

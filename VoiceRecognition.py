@@ -22,10 +22,11 @@ notification = win10toast.ToastNotifier()
 youtube = build('youtube', 'v3', developerKey="AIzaSyDu5qoUXtLVam1LytJi26Z_Is48jq0zVyM")
 # Spotify Client Settings
 client_id = '8654953b081e4a93be3dc54a0bb94b76'
+# client_id = 'ali.yo12324'
 client_secret = 'ddf018ff1b3b4681878b036d6518ac29'
 redirect_uri = 'http://google.com/'
 # Username & Scope, and Prompt for user permission
-username = 'ali.yo12324'
+username = '21tsyxc5cuuvesyb6gfxa3nia'
 scope = 'user-read-private user-read-playback-state user-modify-playback-state'
 token = util.prompt_for_user_token(username, scope, client_id, client_secret, redirect_uri)
 # Create Spotify Object
