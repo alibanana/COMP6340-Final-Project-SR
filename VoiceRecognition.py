@@ -402,21 +402,27 @@ def restart():
 def media_pause_play():
     Keyboard.key(Keyboard.VK_MEDIA_PLAY_PAUSE)
     time.sleep(1)
+    notification.show_toast("Media", "Play/Pause", duration=3, threaded=True)
+    
 
 def set_volume(num):
     for i in range(50):
         Keyboard.key(Keyboard.VK_VOLUME_DOWN)
+        notification.show_toast("Media", "Volume increased", duration=3, threaded=True)
     for i in range(int(num / 2)):
         Keyboard.key(Keyboard.VK_VOLUME_UP)
+        notification.show_toast("Media", "Volume decreased", duration=3, threaded=True)
 
 def next_media():
     Keyboard.key(Keyboard.VK_MEDIA_NEXT_TRACK)
     time.sleep(1)
+    notification.show_toast("Media", "Next Track", duration=3, threaded=True)
 
 def prev_media():
     Keyboard.key(Keyboard.VK_MEDIA_PREV_TRACK)
     Keyboard.key(Keyboard.VK_MEDIA_PREV_TRACK)
     time.sleep(1)
+    notification.show_toast("Media", "Previous Track", duration=3, threaded=True)
 
 # Evaluate/Calculate Functions
 def evaluator(exp, eval_regex=r'^(\d+|\+|-|\*|\/)$'):
