@@ -14,7 +14,6 @@ r = sr.Recognizer()
 def get_audio():
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source, duration=2)
-        print("Speak Anything: ")
         notification.show_toast("SR", "Start talking:", threaded=True, duration=3)
         audio = r.listen(source)
         # audio = r.record(source, duration=4)
@@ -22,7 +21,6 @@ def get_audio():
             text = r.recognize_google(audio, language="EN-US")
             # print("You Said: {}".format(text))
         except:
-            print("Sorry could not recognize your voice")
             return
     return text.lower()
 
