@@ -1,15 +1,9 @@
 import time  # Used for Sleep Function
 import os  # For System Commands
 import re  # For Splitting
-import keyboard  # Simulate Keyboard Input
 import win10toast # For notifications
-import subprocess # Also for system commands
-import json
 import spotipy # Spotify Python API
 import spotipy.util as util # Util for Spotify API
-
-import threading
-
 import speech_recognition as sr  # Main SR API
 
 from datetime import datetime # Check date
@@ -18,15 +12,16 @@ from googleapiclient.discovery import build # For Youtube API
 
 r = sr.Recognizer()
 notification = win10toast.ToastNotifier()
+
 # Youtube Settings
 youtube = build('youtube', 'v3', developerKey="AIzaSyDu5qoUXtLVam1LytJi26Z_Is48jq0zVyM")
 # Spotify Client Settings
 client_id = '8654953b081e4a93be3dc54a0bb94b76'
-# client_id = 'ali.yo12324'
 client_secret = 'ddf018ff1b3b4681878b036d6518ac29'
 redirect_uri = 'http://google.com/'
 # Username & Scope, and Prompt for user permission
-username = '21tsyxc5cuuvesyb6gfxa3nia'
+# username = '21tsyxc5cuuvesyb6gfxa3nia'
+username = ''
 scope = 'user-read-private user-read-playback-state user-modify-playback-state'
 token = util.prompt_for_user_token(username, scope, client_id, client_secret, redirect_uri)
 # Create Spotify Object
@@ -80,7 +75,7 @@ def split_command(text):
     try:
         input = text.split()
     except AttributeError:
-        return True
+        return
     # If multiple command
     if ("then" in input) or ("and" in input):
         input2 = re.split('then|and', text)
@@ -97,91 +92,91 @@ def parse_text(input):
         for word in input:
             if word in MainKeys[3]:
                 internet_stuff(input)
-                return True
+                return
             if word in MainKeys[6] or word in MainKeys[11]:
                 if "youtube" in input:
                     play_youtube(input)
-                    return True
+                    return
                 if "spotify" in input:
                     play_spotify(input, "Computer")
-                    return True
+                    return
                 if any(x in input for x in phone_list):
                     play_spotify(input, "Smartphone")
-                    return True
+                    return
                 media_pause_play()
     # Open Stuff
     if any(x in input for x in MainKeys[0]):
         open_stuff(input)
-        return True
+        return
     # Close Stuff
     if any(x in input for x in MainKeys[1]):
         close_stuff(input)
-        return True
+        return
     # Check Date
     if any(x in input for x in MainKeys[2]):
         check_date()
-        return True
+        return
     # Shutdown Computer
     if all(x in input for x in MainKeys[4][0]) or all(x in input for x in MainKeys[4][1]) or \
     all(x in input for x in MainKeys[4][2]) or any(x in input for x in MainKeys[4][3]):
         print("Are you sure?")
         if get_audio() == "yes":
             shutdown()
-        return True
+        return
     # Restart Computer
     if any(x in input for x in MainKeys[5]):
         print("Are you sure?")
         if get_audio() == "yes":
             restart()
-        return True
+        return
     # Set Volume
     if all(x in input for x in MainKeys[7]):
         for i in input:
             if '%' in i:
                 set_volume(int(i.split('%')[0]))
-        return True
+        return
     # Next Media
     if any(x in input for x in MainKeys[9]):
         next_media()
-        return True
+        return
     # Prev Media
     if any(x in input for x in MainKeys[10]):
         prev_media()
-        return True
+        return
     # Evaluate/Calculate
     if any(x in input for x in MainKeys[8]):
         evaluator(input)
-        return True
+        return
 
 
 def open_stuff(text):
     # Open Explorer
     if any(word in text for word in explorer_list):
         open_explorer()
-        return True
+        return
     # Open Task View
     if all(word in text for word in taskview_list[:2]) or (taskview_list[2] in text):
         open_taskview()
-        return True
+        return
     # Open Microsoft Applications (word, excel, powerpoint)
     if "microsoft" in text:
         if any(word in text for word in mword_list):
             microsoft_word()
-            return True
+            return
         if any(word in text for word in mexcel_list):
             microsoft_excel()
-            return True
+            return
         if any(word in text for word in mpowerpoint_list):
             microsoft_powerpoint()
-            return True
+            return
     # Open Spotify
     if any(word in text for word in spotify_list):
         open_spotify()
-        return True
+        return
     # Open Browser or Chrome
     if any(word in text for word in browser_list):
         open_chrome()
-        return True
+        return
 
 
 def close_stuff(text):
@@ -189,31 +184,31 @@ def close_stuff(text):
     if "microsoft" in text:
         if any(word in text for word in mword_list):
             close_word()
-            return True
+            return
         if any(word in text for word in mexcel_list):
             close_excel()
-            return True
+            return
         if any(word in text for word in mpowerpoint_list):
             close_powerpoint()
-            return True
+            return
     # Close Spotify
     if any(word in text for word in spotify_list):
         close_spotify()
-        return True
+        return
     # Close Browser or Chrome
     if any(word in text for word in browser_list):
         close_chrome()
-        return True
+        return
 
 
 # Search on the internet
 def internet_stuff(text):
     if "google" in text:
         search_options(text, 1)
-        return True
+        return
     if "youtube" in text:
         search_options(text, 2)
-        return True
+        return
 
 # Searching (Google and Youtube)
 def search_options(input, setting):
@@ -278,14 +273,11 @@ def get_device_id(device_type):
     # Get list of devices
     devices = spotifyObject._get('me/player/devices')['devices']
     if len(devices) == 0:
-        print("There are no devices available currently")
-        return True
-    if len(devices) == 1:
-        return devices[0]['id']
+        return 1
     for device in devices:
         if device['type'] == device_type:
             return device['id']
-    print("The type of device you're looking for aren't available now")
+    return 2
 
 # Play song on spotify
 def play_spotify(text, device_type):
@@ -300,20 +292,25 @@ def play_spotify(text, device_type):
     print(search_query)
     # Getting Track URI
     if search_query == "":
-        print("Nothing to search")
-        return True
+        notification.show_toast("Spotify Warning", "Nothing to search", duration=5, threaded=True)
+        return
     current_market = spotifyObject.current_user()['country']
     searchResult = spotifyObject.search(search_query, type='track', limit=1, market=current_market)
     # print(json.dumps(searchResult, sort_keys=True, indent=4))
     try:
         track_uri = searchResult['tracks']['items'][0]['uri']
     except IndexError:
-        print("No result for the following query, please try again.")
-        return True
+        notification.show_toast("Spotify Warning", "No result for the following query, please try again.", duration=5, threaded=True)
+        return
     print(track_uri)
     # Getting Device ID
     device_id = get_device_id(device_type)
-    # print(device_id)
+    if device_id == 1:
+        notification.show_toast("Spotify Warning", "There are no devices available currently", duration=5, threaded=True)
+        return
+    if device_id == 2:
+        notification.show_toast("Spotify Warning", "The type of device you're looking for aren't available now", duration=5, threaded=True)
+        return
     # Playing track
     data = {
         'uris': [track_uri]
@@ -328,7 +325,7 @@ def play_spotify(text, device_type):
 # Open Stuff Functions
 def open_explorer():
     os.system('start explorer')
-    notification.show_toast('Windows Explorer', 'Successfully opened', icon_path='icon/explorer.ico', duration=3)
+    notification.show_toast('Windows Explorer', 'Successfully opened', icon_path='icon/explorer.ico', duration=3, threaded=True)
 
 def open_taskview():
     print("open taskview")
@@ -336,63 +333,63 @@ def open_taskview():
     Keyboard.keyDown(Keyboard.VK_TAB)
     Keyboard.keyUp(Keyboard.VK_LWIN)
     Keyboard.keyUp(Keyboard.VK_TAB)
-    notification.show_toast('Taskview', 'Successfully opened', duration=3)
+    notification.show_toast('Taskview', 'Successfully opened', duration=3, threaded=True)
 
 def microsoft_word():
     os.system('start winword')
     time.sleep(1)
-    notification.show_toast('Microsoft Word', 'Successfully opened', icon_path='icon/ms-word.ico', duration=3)
+    notification.show_toast('Microsoft Word', 'Successfully opened', icon_path='icon/ms-word.ico', duration=3, threaded=True)
 
 def microsoft_excel():
     os.system('start excel')
     time.sleep(1)
-    notification.show_toast('Microsoft Excel', 'Successfully opened', icon_path='icon/ms-excel.ico', duration=3)
+    notification.show_toast('Microsoft Excel', 'Successfully opened', icon_path='icon/ms-excel.ico', duration=3, threaded=True)
 
 def microsoft_powerpoint():
     os.system('start powerpnt')
     time.sleep(1)
-    notification.show_toast('Microsoft PowerPoint', 'Successfully opened', icon_path='icon/ms-powerpoint.ico',duration=3)
+    notification.show_toast('Microsoft PowerPoint', 'Successfully opened', icon_path='icon/ms-powerpoint.ico',duration=3, threaded=True)
 
 def open_spotify():
     os.system('start spotify')
     time.sleep(1)
-    notification.show_toast('Spotify', 'Successfully opened', icon_path='icon/spotify.ico', duration=3)
+    notification.show_toast('Spotify', 'Successfully opened', icon_path='icon/spotify.ico', duration=3, threaded=True)
     time.sleep(1)
 
 def open_chrome():
     os.system('start chrome')
     time.sleep(1)
-    notification.show_toast('Chrome', 'Successfully opened', icon_path='icon/chrome.ico', duration=3)
+    notification.show_toast('Chrome', 'Successfully opened', icon_path='icon/chrome.ico', duration=3, threaded=True)
     time.sleep(1)
 
 
 # Close Stuff Functions
 def close_word():
     os.system('taskkill /im winword.exe /f')
-    notification.show_toast('Microsoft Word', 'Successfully closed', icon_path='icon/ms-word.ico', duration=3)
+    notification.show_toast('Microsoft Word', 'Successfully closed', icon_path='icon/ms-word.ico', duration=3, threaded=True)
 
 def close_excel():
     os.system('taskkill /im excel.exe /f')
-    notification.show_toast('Microsoft Excel', 'Successfully closed', icon_path='icon/ms-excel.ico', duration=3)
+    notification.show_toast('Microsoft Excel', 'Successfully closed', icon_path='icon/ms-excel.ico', duration=3, threaded=True)
 
 def close_powerpoint():
     os.system('taskkill /im powerpnt.exe /f')
-    notification.show_toast('Microsoft PowerPoint', 'Successfully closed', icon_path='icon/ms-powerpoint.ico', duration=3)
+    notification.show_toast('Microsoft PowerPoint', 'Successfully closed', icon_path='icon/ms-powerpoint.ico', duration=3, threaded=True)
 
 def close_spotify():
     os.system('taskkill /im spotify.exe /f')
-    notification.show_toast('Spotify', 'Successfully closed', icon_path='icon/spotify.ico', duration=3)
+    notification.show_toast('Spotify', 'Successfully closed', icon_path='icon/spotify.ico', duration=3, threaded=True)
 
 def close_chrome():
     os.system('taskkill /im chrome.exe /f')
-    notification.show_toast('Chrome', 'Chrome closed', icon_path='icon/chrome.ico', duration=3)
+    notification.show_toast('Chrome', 'Chrome closed', icon_path='icon/chrome.ico', duration=3, threaded=True)
 
 
 # System Functions
 def check_date():
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%y %H:%M")
-    notification.show_toast(dt_string, "Date & Time", duration=10, threaded=True)
+    notification.show_toast(dt_string, "Date & Time", duration=5, threaded=True)
 
 def shutdown():
     # os.system('shutdown /s')
@@ -427,28 +424,8 @@ def evaluator(exp, eval_regex=r'^(\d+|\+|-|\*|\/)$'):
     for i in range(len(exp)):
         if re.match(eval_regex, exp[i], re.M):
             checked.append(exp[i])
-    result = str(eval("".join(checked)))
-    print(result)
-    notification.show_toast(result, "Result",icon_path='icon/Dtafalonso-Android-Lollipop-Calculator.ico', duration=3)
-
-
-# Main While Loop
-
-# def run():
-    # while True:
-    #     keyboard.wait(hotkey="k + l")
-    #     split_command(get_audio())
-    #     print(current_device)
-    # while True:
-    #     text = input("Write Command: ")
-    #     print("What you wrote: ", text)
-    #     split_command(text)
-    #     print(current_device)
-
-    # keyboard.wait(hotkey="k + l")
-    # split_command(get_audio())
-    # print("What you said: ", text)
-    # print(current_device)
-    # return text
-
-# play_spotify('play search on spotify'.split(), 'Computer')
+    try:
+        result = str(eval("".join(checked)))
+        notification.show_toast(result, "Result", icon_path='icon/calculator.ico', duration=3, threaded=True)
+    except SyntaxError:
+        notification.show_toast("Wrong Syntax", "Please try again", duration=3, threaded=True)

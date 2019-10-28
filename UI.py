@@ -1,18 +1,16 @@
-import PyQt5.QtCore as QtCore
-import PyQt5.QtGui as QtGui
-import PyQt5.QtWidgets as QtWidgets
-from PyQt5.QtCore import pyqtSignal, Qt, QThread
+import sys
 import keyboard
 import speech_recognition as sr
 import VoiceRecognition as vr
-import threading
-import sys
 import win10toast
+import PyQt5.QtCore as QtCore
+import PyQt5.QtGui as QtGui
+import PyQt5.QtWidgets as QtWidgets
+from PyQt5.QtCore import QThread
 
 notification = win10toast.ToastNotifier()
-
-# Speech to Text
 r = sr.Recognizer()
+
 def get_audio():
     with sr.Microphone() as source:
         r.adjust_for_ambient_noise(source, duration=2)
@@ -29,7 +27,6 @@ def get_audio():
     return text.lower()
 
 # PyQT5 UI
-text = ''
 class My_Thread(QThread):
     def __init__(self):
         super(My_Thread, self).__init__()
@@ -38,7 +35,6 @@ class My_Thread(QThread):
             keyboard.wait(hotkey="k + l")
             saidtext = get_audio()
             if saidtext == None:
-                self.text = "Sorry could not recognize your voice"
                 notification.show_toast("Error","Sorry could not recognize your voice", threaded=True, duration=3 )
             else:
                 print("What you said: ", saidtext)
@@ -133,7 +129,6 @@ class Ui_MainWindow(object):
         self.thread.start()
         self.pushButton.setText("Stop")
         self.state = 1
-        self.textEdit.setText(text)
 
     def buttonstop(self):
         self.thread.terminate()
