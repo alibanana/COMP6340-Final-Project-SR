@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 {"access_token": "BQBbG2CZVjtCis6WG2uFEE8hqlIZPpjcC0IVglIZl0HR4oM2FOx6ivSzhFJntj62Rr6KMMDENuIOiW1zfuS7IfHUotwNwKTxm8O3vzKk2J8LX9iuHCGw8VFw7uuVoREbINiIAS_qTSF3vBCImozILuRX55_7hOkcz2oiPAh9iQ", "token_type": "Bearer", "expires_in": 3600, "refresh_token": "AQDvN2PfSdU6vdvhmveTEqaKLZnzC383MCAiAjpypqIXntjZzShFJlOQm6fVbv0w8GptYPlvtuXicdPdzMFqzY0d_OUbxz4vXcxWvyQnQJGToYKw5OBJoKfJp2kBlxJ1zbtplg", "scope": "user-modify-playback-state user-read-playback-state user-read-private", "expires_at": 1572270881}
+=======
+{"access_token": "BQBsDjd8Qr-Waklp1Kl9D-9rfIOUxDVdSRe1q4mjPgk_II2zeeESNnCsboTCXCbvS1ppB0LTj28Sk44V9tJJNPs25_W1YoPfc9gy4BZkqVGd-yVhotdYcVnALpjT778X0u3Akb_i-nFf3_ZOgwciiTJNVIUq-Nu0WYOjcrOGWJ50k5Sp-MyWvWH1rbqu0coammbt", "token_type": "Bearer", "expires_in": 3600, "scope": "user-modify-playback-state user-read-playback-state user-read-private", "expires_at": 1572262755, "refresh_token": "AQBXbrX966dCUCzTnOaMxVe241LuMr7eME7HHxXrT5g5N_18L0s8MoiJ6K7miJYjiHN2dHyAvo0NJUz-9hQK7vwJCePdt6nvhd5AuB9Ya9WYNuE-vxF7D6F4g5bOZd_MInv5jA"}
+>>>>>>> 2937705fcc0f9e1e7b4884a8157d396d4f9aab7f
