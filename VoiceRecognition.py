@@ -408,10 +408,10 @@ def media_pause_play():
 def set_volume(num):
     for i in range(50):
         Keyboard.key(Keyboard.VK_VOLUME_DOWN)
-        notification.show_toast("Media", "Volume increased", duration=3, threaded=True)
     for i in range(int(num / 2)):
         Keyboard.key(Keyboard.VK_VOLUME_UP)
-        notification.show_toast("Media", "Volume decreased", duration=3, threaded=True)
+        string = 'Volume set to ' + str(num) + '%'
+        notification.show_toast("Media", string, duration=3, threaded=True)
 
 def next_media():
     Keyboard.key(Keyboard.VK_MEDIA_NEXT_TRACK)
