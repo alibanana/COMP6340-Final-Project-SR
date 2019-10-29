@@ -30,7 +30,7 @@ spotifyObject = spotipy.Spotify(auth=token)
 
 current_device = ''
 
-MainKeys = [["open"],
+MainKeys = [["open", "opens"],
             ["close", "exit", "quit"],
             ["date", "time"],
             ["search"],
